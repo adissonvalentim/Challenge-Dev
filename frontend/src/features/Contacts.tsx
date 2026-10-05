@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Search, Plus } from "lucide-react";
 import { api } from "../api/client";
 import { Feedback } from "../components/Feedback";
@@ -8,6 +8,20 @@ import type { Contact } from "../api/types";
 
 export function Contacts() {
   const [editor, setEditor] = useState<{ contact: Contact | null } | null>(null);
+  const queryClient = useQueryClient();
+  const [deleting, setDeleting] = useState<Contact | null>(null);
+  const deletion = useMutation({
+    mutationFn: (contact: Contact) => api.deleteContact(contact.id),
+    onSuccess: async () => {
+      setDeleting(null);
+      setEditor(null);
+      setNotice("Contato excluído com sucesso.");
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["contacts"] }),
+        queryClient.invalidateQueries({ queryKey: ["summary"] }),
+      ]);
+    },
+  });
   const [notice, setNotice] = useState("");
   const editorTrigger = useRef<HTMLButtonElement | null>(null);
   const closeEditor = () => { setEditor(null); editorTrigger.current?.focus(); };
@@ -26,6 +40,11 @@ export function Contacts() {
     queryFn: ({ signal }) => api.contacts(appliedSearch, page, 20, signal),
   });
   const data = query.data;
+  useEffect(() => {
+    if (data && page > Math.max(1, Math.ceil(data.total / 20))) {
+      setPage(Math.max(1, Math.ceil(data.total / 20)));
+    }
+  }, [data, page]);
   const pages = Math.max(1, Math.ceil((data?.total ?? 0) / 20));
   return (
     <section aria-labelledby="contacts-title">
@@ -37,10 +56,20 @@ export function Contacts() {
         <button className="button primary" onClick={event => {
           editorTrigger.current = event.currentTarget;
           setNotice("");
+          setDeleting(null);
           setEditor({ contact: null });
         }}><Plus size={18} aria-hidden="true" />Novo contato</button>
       </div>
       {notice && <p className="success-notice" role="status">{notice}</p>}
+      {deleting && <section className="contact-form" aria-labelledby="delete-title">
+        <h2 id="delete-title">Excluir {deleting.name}?</h2>
+        <p>O contato e suas respostas deixarão de aparecer na lista, no histórico e nos indicadores.</p>
+        {deletion.isError && <p className="form-error" role="alert">{deletion.error.message}</p>}
+        <div className="form-actions">
+          <button className="button danger" disabled={deletion.isPending} onClick={() => deletion.mutate(deleting)}>{deletion.isPending ? "Excluindo…" : "Confirmar exclusão"}</button>
+          <button className="button secondary" disabled={deletion.isPending} onClick={() => { setDeleting(null); editorTrigger.current?.focus(); }}>Cancelar</button>
+        </div>
+      </section>}
       {editor && <ContactForm key={editor.contact?.id ?? "new"} contact={editor.contact} onClose={closeEditor} onSaved={saved => {
         setNotice(editor.contact ? "Contato atualizado com sucesso." : "Contato criado com sucesso.");
         setSearch(saved.email);
@@ -106,11 +135,19 @@ export function Contacts() {
                         "Sem segmento"
                       )}
                     </td>
-                    <td><button className="button secondary" aria-label={`Editar ${contact.name}`} onClick={event => {
+                    <td><div className="row-actions"><button className="button secondary" aria-label={`Editar ${contact.name}`} onClick={event => {
                       editorTrigger.current = event.currentTarget;
                       setNotice("");
+                      setDeleting(null);
                       setEditor({ contact });
-                    }}>Editar</button></td>
+                    }}>Editar</button>
+                      <button className="button danger" aria-label={`Excluir ${contact.name}`} onClick={event => {
+                        editorTrigger.current = event.currentTarget;
+                        deletion.reset();
+                        setEditor(null);
+                        setNotice("");
+                        setDeleting(contact);
+                      }}>Excluir</button></div></td>
                   </tr>
                 ))}
               </tbody>

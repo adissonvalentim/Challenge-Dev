@@ -122,7 +122,7 @@ curl --fail http://localhost:8080/api/contacts/1/responses
 `GET /api/contacts/{id}/responses` retorna 200 com as respostas válidas, nome
 e tipo da pesquisa, nota, comentário, canal e data UTC. Ordenação: mais recente
 primeiro. Contato ativo sem respostas retorna `[]`; inexistente/excluído retorna
-404. O CRUD, histórico e resumo estão implementados; o frontend ainda está pendente.
+404. O CRUD, histórico e resumo estão implementados na API.
 
 ## Resumo de satisfação
 
@@ -155,7 +155,7 @@ backend; não é necessário configurar CORS porque o navegador usa a mesma orig
 
 Nesta etapa: resumo, distribuição NPS, listagem de contatos, busca e paginação
 com estados de carregamento, erro e vazio, além de formulários para criar e editar
-contatos. Exclusão e histórico na interface ainda serão adicionados. React Query gerencia cache e requisições;
+contatos e exclusão com confirmação. O histórico na interface ainda será adicionado. React Query gerencia cache e requisições;
 a busca aplica debounce de 300 ms. A interface usa os valores do endpoint de
 resumo; a faixa representa a distribuição, sem recalcular o NPS.
 
@@ -166,3 +166,11 @@ exige nome e e-mail; segmento é texto livre e opcional. Os campos são bloquead
 durante o envio; erro da API mantém os valores preenchidos e aparece no formulário.
 Após salvar, a lista é atualizada sem recarregar a página e a busca passa para o
 e-mail salvo, tornando o resultado visível. Cancelar fecha o formulário.
+
+## Excluir pela interface
+
+Na tabela, use **Excluir**, confira o nome e confirme a operação. Cancelar
+preserva o contato. Durante a requisição, os botões da confirmação ficam
+desabilitados; uma falha mantém a confirmação aberta para tentar novamente.
+Após o sucesso, a lista e o resumo são atualizados. A página é ajustada se a
+exclusão remover o último contato da última página.
