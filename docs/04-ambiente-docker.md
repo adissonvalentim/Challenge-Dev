@@ -1,7 +1,7 @@
 # Ambiente de desenvolvimento
 
-O projeto usará PostgreSQL, API .NET com Dapper e frontend React com TypeScript,
-executados em containers Docker. Não será necessário instalar o SDK .NET ou Node
+O projeto usa PostgreSQL, API .NET com Dapper e frontend React com TypeScript,
+executados em containers Docker. Não é necessário instalar o SDK .NET ou Node
 na máquina para executar a aplicação.
 
 ## Banco de dados
@@ -62,8 +62,7 @@ curl --fail http://localhost:8080/api/contacts/1
 ```
 
 `GET /api/contacts/{id}` retorna HTTP 200 com `id`, `name`, `email` e `segment`,
-ou HTTP 404 quando o contato não existe ou foi excluído logicamente. Os demais
-endpoints do contrato ainda serão implementados, exceto o cadastro abaixo.
+ou HTTP 404 quando o contato não existe ou foi excluído logicamente.
 
 Para criar um contato:
 
@@ -98,7 +97,7 @@ Para parar os serviços mantendo os dados:
 docker compose down
 ```
 
-O frontend ainda será adicionado ao Compose com sua implementação.
+O frontend faz parte do Compose; veja a seção Frontend React abaixo.
 
 ## Edição de contatos
 
@@ -153,7 +152,7 @@ Abra http://localhost:3000. O frontend React 18 com TypeScript é compilado pelo
 Vite dentro de uma imagem Node e servido pelo Nginx. O Nginx encaminha `/api` ao
 backend; não é necessário configurar CORS porque o navegador usa a mesma origem.
 
-Nesta etapa: resumo, distribuição NPS, listagem de contatos, busca e paginação
+A interface apresenta resumo, distribuição NPS, listagem de contatos, busca e paginação
 com estados de carregamento, erro e vazio, além de formulários para criar e editar
 contatos e exclusão com confirmação. O histórico de respostas também está disponível. React Query gerencia cache e requisições;
 a busca aplica debounce de 300 ms. A interface usa os valores do endpoint de

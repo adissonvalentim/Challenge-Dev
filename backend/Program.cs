@@ -20,7 +20,7 @@ using (var scope = app.Services.CreateScope())
     await scope.ServiceProvider.GetRequiredService<SeedImporter>().ImportAsync(seedPath);
 }
 
-// Rota operacional; os endpoints do contrato serão implementados nas próximas etapas.
+// Rota operacional disponível após a importação do seed.
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapContactEndpoints();
 app.MapAnalyticsEndpoints();

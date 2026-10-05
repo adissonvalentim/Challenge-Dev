@@ -13,3 +13,7 @@ dist/
 
 # Credenciais locais
 .env
+
+# Material pessoal de apresentação e artefatos locais de design
+apresentacao-local/
+.impeccable/
