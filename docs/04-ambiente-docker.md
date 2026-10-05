@@ -142,3 +142,19 @@ sem respostas CSAT, `csatAvg` retorna null. O arredondamento é feito somente
 na apresentação: NPS inteiro, percentuais com uma casa e CSAT com duas. Empates
 exatos de arredondamento usam AwayFromZero, decisão adotada porque o contrato
 não especifica o tratamento de empates. Filtros opcionais não foram implementados.
+
+## Frontend React
+
+```sh
+docker compose up -d --build frontend
+```
+
+Abra http://localhost:3000. O frontend React 18 com TypeScript é compilado pelo
+Vite dentro de uma imagem Node e servido pelo Nginx. O Nginx encaminha `/api` ao
+backend; não é necessário configurar CORS porque o navegador usa a mesma origem.
+
+Nesta etapa: resumo, distribuição NPS, listagem de contatos, busca e paginação
+com estados de carregamento, erro e vazio. Formulários, exclusão e histórico na
+interface ainda serão adicionados. React Query gerencia cache e requisições;
+a busca aplica debounce de 300 ms. A interface usa os valores do endpoint de
+resumo; a faixa representa a distribuição, sem recalcular o NPS.

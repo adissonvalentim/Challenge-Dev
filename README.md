@@ -3,15 +3,18 @@
 ## Implementação em andamento
 
 O projeto usa PostgreSQL 16 e API .NET 8 com Dapper, executados em Docker.
-O frontend React com TypeScript ainda será implementado.
+O frontend React 18 com TypeScript já apresenta resumo e listagem com busca e
+paginação. Formulários, exclusão e histórico na interface ainda estão pendentes.
 
 Para executar banco e API, com Docker e Docker Compose instalados:
 
 ```sh
 cp .env.example .env
-docker compose up -d --build api
+docker compose up -d --build frontend
 curl --fail http://localhost:8080/health
 ```
+
+Abra http://localhost:3000 para acessar a interface.
 
 Se já tiver um `.env`, mantenha suas configurações. A importação do
 `data/seed.json` acontece automaticamente na primeira inicialização da API,
@@ -28,7 +31,8 @@ o schema atual cria as tabelas, mas não atualiza estruturas já existentes.
 ### Uso de IA
 
 Codex foi usado como apoio na leitura dos requisitos, criação do schema,
-configuração Docker e implementação do importador com Dapper. As etapas estão
+configuração Docker, implementação do backend com Dapper e frontend React.
+Impeccable foi usado para orientar a direção visual e a revisão da interface. As etapas estão
 sendo revisadas e explicadas durante o desenvolvimento para permitir a defesa
 das decisões e das consultas na entrevista técnica.
 
