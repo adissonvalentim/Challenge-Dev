@@ -112,3 +112,15 @@ retorna 404.
 `DELETE /api/contacts/{id}` marca `deleted_at` e retorna 204 sem corpo.
 Contato inexistente ou já excluído retorna 404. A linha permanece no banco,
 não aparece nas leituras e seu e-mail fica disponível para novos cadastros.
+
+## Histórico de respostas
+
+```sh
+curl --fail http://localhost:8080/api/contacts/1/responses
+```
+
+`GET /api/contacts/{id}/responses` retorna 200 com as respostas válidas, nome
+e tipo da pesquisa, nota, comentário, canal e data UTC. Ordenação: mais recente
+primeiro. Contato ativo sem respostas retorna `[]`; inexistente/excluído retorna
+404. O CRUD e o histórico de contatos estão implementados; analytics e frontend
+ainda estão pendentes.

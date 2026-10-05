@@ -7,6 +7,13 @@ public static class ContactEndpoints
 {
     public static void MapContactEndpoints(this WebApplication app)
     {
+        app.MapGet("/api/contacts/{id:int}/responses", async (
+            int id, ContactRepository repository, CancellationToken cancellationToken) =>
+        {
+            var responses = await repository.GetResponsesAsync(id, cancellationToken);
+            return responses is null ? Results.NotFound() : Results.Ok(responses);
+        });
+
         app.MapDelete("/api/contacts/{id:int}", async (
             int id, ContactRepository repository, CancellationToken cancellationToken) =>
             await repository.DeleteAsync(id, cancellationToken)
