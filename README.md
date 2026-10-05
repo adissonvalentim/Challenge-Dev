@@ -1,5 +1,41 @@
 # Desafio Técnico PliQ — Mini CX 📋
 
+## Implementação em andamento
+
+O projeto usa PostgreSQL 16 e API .NET 8 com Dapper, executados em Docker.
+O frontend React com TypeScript ainda será implementado.
+
+Para executar banco e API, com Docker e Docker Compose instalados:
+
+```sh
+cp .env.example .env
+docker compose up -d --build api
+curl --fail http://localhost:8080/health
+```
+
+Se já tiver um `.env`, mantenha suas configurações. A importação do
+`data/seed.json` acontece automaticamente na primeira inicialização da API,
+em uma transação, e não se repete nos reinícios. Todos os campos são preservados,
+incluindo `deletedAt`. Veja os detalhes em
+[Ambiente Docker](docs/04-ambiente-docker.md).
+
+Escolhemos PostgreSQL para usar um banco relacional com chaves estrangeiras,
+datas com fuso e índice único parcial para e-mails de contatos ativos. Docker
+padroniza o ambiente, mas exige a instalação do Docker, enquanto SQLite seria
+mais simples de configurar. Com mais tempo, usaríamos migrações versionadas:
+o schema atual cria as tabelas, mas não atualiza estruturas já existentes.
+
+### Uso de IA
+
+Codex foi usado como apoio na leitura dos requisitos, criação do schema,
+configuração Docker e implementação do importador com Dapper. As etapas estão
+sendo revisadas e explicadas durante o desenvolvimento para permitir a defesa
+das decisões e das consultas na entrevista técnica.
+
+As instruções originais do desafio estão preservadas abaixo.
+
+---
+
 Bem-vindo(a)! Este desafio faz parte do nosso processo seletivo para desenvolvedores(as)
 de nível **júnior a pleno**. Ele foi desenhado para você mostrar, num escopo pequeno e
 realista, como trabalha com as três camadas do nosso dia a dia: **banco de dados

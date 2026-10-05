@@ -1,4 +1,16 @@
 services:
+  api:
+    build: ./backend
+    environment:
+      ConnectionStrings__Database: "Host=db;Port=5432;Database=mini_cx;Username=mini_cx;Password=${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no arquivo .env}"
+      Seed__Path: /data/seed.json
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./data/seed.json:/data/seed.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
   db:
     image: postgres:16
     environment:
