@@ -10,3 +10,6 @@ obj/
 node_modules/
 dist/
 *.db
+
+# Credenciais locais
+.env
