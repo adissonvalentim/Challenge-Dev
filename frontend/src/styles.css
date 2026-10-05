@@ -605,3 +605,16 @@ footer {
 .row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .danger { color: #7f251a; background: #fff0ed; }
 .danger:hover:not(:disabled) { background: #ffe0da; }
+
+.contact-history { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 24px; margin-bottom: 24px; }
+.contact-history .section-heading { align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.contact-history h2 { overflow-wrap: anywhere; }
+.response-list { padding: 0; margin: 24px 0 0; list-style: none; }
+.response-list li { padding: 20px 0; border-top: 1px solid var(--line); }
+.response-list li:last-child { padding-bottom: 0; }
+.response-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.response-heading h3 { font-size: 1rem; overflow-wrap: anywhere; }
+.response-score { color: var(--brand); font-weight: 700; font-variant-numeric: tabular-nums; }
+.response-meta { color: var(--muted); font-size: .85rem; margin: 8px 0 12px; }
+.response-comment { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; max-width: 70ch; }
+@media(max-width:700px) { .contact-history { padding: 20px; } }

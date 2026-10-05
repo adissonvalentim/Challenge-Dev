@@ -155,7 +155,7 @@ backend; não é necessário configurar CORS porque o navegador usa a mesma orig
 
 Nesta etapa: resumo, distribuição NPS, listagem de contatos, busca e paginação
 com estados de carregamento, erro e vazio, além de formulários para criar e editar
-contatos e exclusão com confirmação. O histórico na interface ainda será adicionado. React Query gerencia cache e requisições;
+contatos e exclusão com confirmação. O histórico de respostas também está disponível. React Query gerencia cache e requisições;
 a busca aplica debounce de 300 ms. A interface usa os valores do endpoint de
 resumo; a faixa representa a distribuição, sem recalcular o NPS.
 
@@ -174,3 +174,11 @@ preserva o contato. Durante a requisição, os botões da confirmação ficam
 desabilitados; uma falha mantém a confirmação aberta para tentar novamente.
 Após o sucesso, a lista e o resumo são atualizados. A página é ajustada se a
 exclusão remover o último contato da última página.
+
+## Consultar histórico pela interface
+
+Use **Histórico** na linha de um contato. O painel apresenta o nome da pesquisa,
+tipo, nota com sua escala, comentário (ou “Sem comentário”), canal e data em UTC.
+A ordem é a da API: respostas válidas mais recentes primeiro. O painel trata
+carregamento, erro com nova tentativa e ausência de respostas. **Fechar histórico**
+retorna o foco ao botão que abriu o painel.

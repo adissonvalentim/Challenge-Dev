@@ -3,22 +3,28 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Search, Plus } from "lucide-react";
 import { api } from "../api/client";
 import { Feedback } from "../components/Feedback";
+import { ContactHistory } from "./ContactHistory";
 import { ContactForm } from "./ContactForm";
 import type { Contact } from "../api/types";
 
 export function Contacts() {
   const [editor, setEditor] = useState<{ contact: Contact | null } | null>(null);
+  const [history, setHistory] = useState<Contact | null>(null);
   const queryClient = useQueryClient();
   const [deleting, setDeleting] = useState<Contact | null>(null);
+  const deleteTitle = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { if (deleting) deleteTitle.current?.focus(); }, [deleting]);
   const deletion = useMutation({
     mutationFn: (contact: Contact) => api.deleteContact(contact.id),
     onSuccess: async () => {
       setDeleting(null);
       setEditor(null);
+      setHistory(null);
       setNotice("Contato excluído com sucesso.");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["contacts"] }),
         queryClient.invalidateQueries({ queryKey: ["summary"] }),
+        queryClient.invalidateQueries({ queryKey: ["responses"] }),
       ]);
     },
   });
@@ -57,12 +63,17 @@ export function Contacts() {
           editorTrigger.current = event.currentTarget;
           setNotice("");
           setDeleting(null);
+          setHistory(null);
           setEditor({ contact: null });
         }}><Plus size={18} aria-hidden="true" />Novo contato</button>
       </div>
       {notice && <p className="success-notice" role="status">{notice}</p>}
+      {history && <ContactHistory key={history.id} contact={history} onClose={() => {
+        setHistory(null);
+        editorTrigger.current?.focus();
+      }} />}
       {deleting && <section className="contact-form" aria-labelledby="delete-title">
-        <h2 id="delete-title">Excluir {deleting.name}?</h2>
+        <h2 id="delete-title" ref={deleteTitle} tabIndex={-1}>Excluir {deleting.name}?</h2>
         <p>O contato e suas respostas deixarão de aparecer na lista, no histórico e nos indicadores.</p>
         {deletion.isError && <p className="form-error" role="alert">{deletion.error.message}</p>}
         <div className="form-actions">
@@ -135,10 +146,18 @@ export function Contacts() {
                         "Sem segmento"
                       )}
                     </td>
-                    <td><div className="row-actions"><button className="button secondary" aria-label={`Editar ${contact.name}`} onClick={event => {
+                    <td><div className="row-actions">
+                      <button className="button secondary" aria-label={`Histórico de ${contact.name}`} onClick={event => {
+                        editorTrigger.current = event.currentTarget;
+                        setEditor(null);
+                        setDeleting(null);
+                        setNotice("");
+                        setHistory(contact);
+                      }}>Histórico</button><button className="button secondary" aria-label={`Editar ${contact.name}`} onClick={event => {
                       editorTrigger.current = event.currentTarget;
                       setNotice("");
                       setDeleting(null);
+                      setHistory(null);
                       setEditor({ contact });
                     }}>Editar</button>
                       <button className="button danger" aria-label={`Excluir ${contact.name}`} onClick={event => {
@@ -146,6 +165,7 @@ export function Contacts() {
                         deletion.reset();
                         setEditor(null);
                         setNotice("");
+                        setHistory(null);
                         setDeleting(contact);
                       }}>Excluir</button></div></td>
                   </tr>

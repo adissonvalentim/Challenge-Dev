@@ -55,8 +55,8 @@ components:
 
 Interface clara com cores vibrantes, conforme direção confirmada pelo usuário.
 O modo é operacional: navegação, dados e estados permanecem legíveis. Esta
-documentação descreve o resumo, a listagem e os formulários de criação e edição
-implementados. Exclusão e histórico na interface ainda estão pendentes.
+documentação descreve o resumo, a listagem, os formulários de criação e edição,
+a confirmação de exclusão e o histórico de respostas implementados.
 Fonte de verdade: `frontend/src/styles.css`.
 
 ## Colors
@@ -95,6 +95,20 @@ borda; hover verde claro, foco azul de 3px e disabled com opacidade reduzida.
 Busca com rótulo acessível e debounce. Feedback distingue erro, carregamento
 e vazio; erros oferecem retry. Cards mostram valores da API e a distribuição
 usa counts para desenhar proporções estáticas, sem animação de largura.
+
+A exclusão pede confirmação em uma superfície inline acima da listagem, com
+nome do contato, explicação do efeito e ações de confirmar ou cancelar. A ação
+destrutiva usa vermelho escuro sobre fundo coral claro; durante a exclusão,
+as ações ficam desabilitadas e o botão informa o andamento. Erros permanecem
+na confirmação e o sucesso aparece como aviso de status.
+
+O histórico abre na mesma posição, em superfície branca com borda e título
+focado ao abrir; fechar devolve o foco à ação de origem. A lista apresenta
+respostas mais recentes primeiro, separadas por linhas, com pesquisa, tipo e
+nota nas escalas explícitas NPS /10 e CSAT /5. Datas indicam UTC; canal e
+comentário completam cada resposta. Comentários preservam quebras de linha,
+têm largura de leitura limitada e quebram textos longos. Carregamento, erro
+com retry, histórico vazio e ausência de comentário têm mensagens próprias.
 
 ## Do's and Don'ts
 

@@ -4,8 +4,7 @@
 
 O projeto usa PostgreSQL 16 e API .NET 8 com Dapper, executados em Docker.
 O frontend React 18 com TypeScript já apresenta resumo e listagem com busca e
-paginação, além de criação, edição e exclusão com confirmação. O histórico na
-interface ainda está pendente.
+paginação, criação, edição, exclusão com confirmação e histórico de respostas.
 
 Para executar banco e API, com Docker e Docker Compose instalados:
 
