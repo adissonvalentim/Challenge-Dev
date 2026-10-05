@@ -8,6 +8,7 @@ var connectionString = builder.Configuration.GetConnectionString("Database")
 builder.Services.AddSingleton(NpgsqlDataSource.Create(connectionString));
 builder.Services.AddScoped<SeedImporter>();
 builder.Services.AddScoped<ContactRepository>();
+builder.Services.AddScoped<ContactService>();
 
 var app = builder.Build();
 

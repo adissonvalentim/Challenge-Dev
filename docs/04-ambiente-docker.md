@@ -63,7 +63,20 @@ curl --fail http://localhost:8080/api/contacts/1
 
 `GET /api/contacts/{id}` retorna HTTP 200 com `id`, `name`, `email` e `segment`,
 ou HTTP 404 quando o contato não existe ou foi excluído logicamente. Os demais
-endpoints do contrato ainda serão implementados.
+endpoints do contrato ainda serão implementados, exceto o cadastro abaixo.
+
+Para criar um contato:
+
+```sh
+curl -i http://localhost:8080/api/contacts \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Aluno de exemplo","email":"aluno@example.com","segment":null}'
+```
+
+`POST /api/contacts` retorna 201 com o contato criado e header `Location`.
+Nome vazio, e-mail inválido ou corpo JSON inválido retornam 400; e-mail já usado
+por contato ativo retorna 409, ignorando maiúsculas. Os erros têm corpo
+`{ "error": "mensagem legível" }`.
 
 O Dockerfile usa o SDK .NET 8 para compilar e uma imagem do runtime ASP.NET 8
 para executar, com usuário sem privilégios de root. Dapper executa o SQL e

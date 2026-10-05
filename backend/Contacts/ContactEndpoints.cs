@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 
 namespace MiniCx.Api.Contacts;
 
@@ -6,6 +7,30 @@ public static class ContactEndpoints
 {
     public static void MapContactEndpoints(this WebApplication app)
     {
+        app.MapPost("/api/contacts", async (
+            HttpRequest request, ContactService service, CancellationToken cancellationToken) =>
+        {
+            if (!request.HasJsonContentType())
+                return Results.BadRequest(new { error = "Envie um corpo JSON com Content-Type application/json." });
+
+            ContactInput? input;
+            try
+            {
+                input = await request.ReadFromJsonAsync<ContactInput>(cancellationToken);
+            }
+            catch (Exception exception) when (exception is JsonException or BadHttpRequestException)
+            {
+                return Results.BadRequest(new { error = "O corpo da requisição deve ser um JSON válido." });
+            }
+            if (input is null)
+                return Results.BadRequest(new { error = "O corpo da requisição é obrigatório." });
+
+            var result = await service.CreateAsync(input, cancellationToken);
+            if (result.Error is not null)
+                return Results.Json(new { error = result.Error }, statusCode: result.Conflict ? 409 : 400);
+            return Results.Created($"/api/contacts/{result.Contact!.Id}", result.Contact);
+        });
+
         app.MapGet("/api/contacts/{id:int}", async (
             int id, ContactRepository repository, CancellationToken cancellationToken) =>
         {
