@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Search, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Plus, Trash2 } from "lucide-react";
 import { api } from "../api/client";
 import { Feedback } from "../components/Feedback";
-import { ContactHistory } from "./ContactHistory";
+import { ContactDetails } from "./ContactDetails";
 import { ContactForm } from "./ContactForm";
 import type { Contact } from "../api/types";
 
 export function Contacts() {
   const [editor, setEditor] = useState<{ contact: Contact | null } | null>(null);
-  const [history, setHistory] = useState<Contact | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const backToList = () => {
+    setSelectedId(null);
+    window.requestAnimationFrame(() => document.getElementById("contacts-title")?.focus());
+  };
   const queryClient = useQueryClient();
   const [deleting, setDeleting] = useState<Contact | null>(null);
   const deleteTitle = useRef<HTMLHeadingElement>(null);
@@ -19,12 +23,14 @@ export function Contacts() {
     onSuccess: async () => {
       setDeleting(null);
       setEditor(null);
-      setHistory(null);
+      backToList();
       setNotice("Contato excluído com sucesso.");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["contacts"] }),
         queryClient.invalidateQueries({ queryKey: ["summary"] }),
         queryClient.invalidateQueries({ queryKey: ["responses"] }),
+        queryClient.invalidateQueries({ queryKey: ["contact"] }),
+        queryClient.invalidateQueries({ queryKey: ["satisfaction"] }),
       ]);
     },
   });
@@ -39,7 +45,7 @@ export function Contacts() {
       setAppliedSearch(search);
       setPage(1);
     }, 300);
-    return () => window.clearTimeout(timer);
+      return () => window.clearTimeout(timer);
   }, [search]);
   const query = useQuery({
     queryKey: ["contacts", appliedSearch, page],
@@ -52,27 +58,7 @@ export function Contacts() {
     }
   }, [data, page]);
   const pages = Math.max(1, Math.ceil((data?.total ?? 0) / 20));
-  return (
-    <section aria-labelledby="contacts-title">
-      <div className="page-heading">
-        <div>
-          <h1 id="contacts-title">Contatos</h1>
-          <p>Encontre os alunos da Vita Bem-Estar.</p>
-        </div>
-        <button className="button primary" onClick={event => {
-          editorTrigger.current = event.currentTarget;
-          setNotice("");
-          setDeleting(null);
-          setHistory(null);
-          setEditor({ contact: null });
-        }}><Plus size={18} aria-hidden="true" />Novo contato</button>
-      </div>
-      {notice && <p className="success-notice" role="status">{notice}</p>}
-      {history && <ContactHistory key={history.id} contact={history} onClose={() => {
-        setHistory(null);
-        editorTrigger.current?.focus();
-      }} />}
-      {deleting && <section className="contact-form" aria-labelledby="delete-title">
+    const confirmation = deleting && <section className="contact-form" aria-labelledby="delete-title">
         <h2 id="delete-title" ref={deleteTitle} tabIndex={-1}>Excluir {deleting.name}?</h2>
         <p>O contato e suas respostas deixarão de aparecer na lista, no histórico e nos indicadores.</p>
         {deletion.isError && <p className="form-error" role="alert">{deletion.error.message}</p>}
@@ -80,13 +66,42 @@ export function Contacts() {
           <button className="button danger" disabled={deletion.isPending} onClick={() => deletion.mutate(deleting)}>{deletion.isPending ? "Excluindo…" : "Confirmar exclusão"}</button>
           <button className="button secondary" disabled={deletion.isPending} onClick={() => { setDeleting(null); editorTrigger.current?.focus(); }}>Cancelar</button>
         </div>
-      </section>}
+      </section>;
+  const openDelete = (contact: Contact, trigger?: HTMLButtonElement) => {
+    if (trigger) editorTrigger.current = trigger;
+    deletion.reset();
+    setNotice("");
+    setDeleting(contact);
+  };
+  if (selectedId !== null) return <>
+    {notice && <p className="success-notice" role="status">{notice}</p>}
+    {confirmation}
+    <ContactDetails busy={deletion.isPending} id={selectedId} onBack={backToList} onDelete={openDelete} onSaved={saved => {
+      queryClient.setQueryData(["contact", saved.id], saved);
+      setNotice("Contato atualizado com sucesso.");
+    }} />
+  </>;
+  return (
+    <section aria-labelledby="contacts-title">
+      <div className="page-heading">
+        <div>
+          <h1 id="contacts-title" tabIndex={-1}>Contatos</h1>
+          <p>Encontre os alunos da Vita Bem-Estar.</p>
+        </div>
+        <button className="button primary" disabled={deletion.isPending} onClick={event => {
+          editorTrigger.current = event.currentTarget;
+          setNotice("");
+          setDeleting(null);
+          setEditor({ contact: null });
+        }}><Plus size={18} aria-hidden="true" />Novo contato</button>
+      </div>
+      {notice && <p className="success-notice" role="status">{notice}</p>}
+      {confirmation}
       {editor && <ContactForm key={editor.contact?.id ?? "new"} contact={editor.contact} onClose={closeEditor} onSaved={saved => {
         setNotice(editor.contact ? "Contato atualizado com sucesso." : "Contato criado com sucesso.");
-        setSearch(saved.email);
-        setAppliedSearch(saved.email);
-        setPage(1);
-        closeEditor();
+        queryClient.setQueryData(["contact", saved.id], saved);
+        setEditor(null);
+        setSelectedId(saved.id);
       }} />}
       <div className="contact-list">
         <div className="search-row">
@@ -129,16 +144,28 @@ export function Contacts() {
               <thead>
                 <tr>
                   <th scope="col">Nome</th>
-                  <th scope="col">E-mail</th>
                   <th scope="col">Segmento</th>
                   <th scope="col">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {data.items.map((contact) => (
-                  <tr key={contact.id}>
-                    <td className="contact-name">{contact.name}</td>
-                    <td>{contact.email}</td>
+                  <tr key={contact.id} className="contact-row" onClick={event => {
+                    const target = event.target;
+                    if (deletion.isPending || window.getSelection()?.toString()) return;
+                    if (target instanceof Element && target.closest("button, a, input, select, textarea")) return;
+                    setNotice("");
+                    setSelectedId(contact.id);
+                  }}>
+                    <td className="contact-name">
+                      <div className="contact-identity">
+                        <span className="contact-initials" aria-hidden="true">{contact.name.split(" ").filter(Boolean).slice(0, 2).map(part => part[0]).join("")}</span>
+                        <div className="contact-labels">
+                          <span className="contact-open">{contact.name}</span>
+                          <span className="contact-email">{contact.email}</span>
+                        </div>
+                      </div>
+                    </td>
                     <td>
                       {contact.segment ? (
                         <span className="segment">{contact.segment}</span>
@@ -147,27 +174,13 @@ export function Contacts() {
                       )}
                     </td>
                     <td><div className="row-actions">
-                      <button className="button secondary" aria-label={`Histórico de ${contact.name}`} onClick={event => {
+                      <button className="button secondary" disabled={deletion.isPending} aria-label={`Ver contato ${contact.name}`} onClick={() => { setNotice(""); setSelectedId(contact.id); }}>Ver contato<ChevronRight size={16} aria-hidden="true" /></button>
+                      <button className="button danger icon-button" disabled={deletion.isPending} aria-label={`Excluir ${contact.name}`} title={`Excluir ${contact.name}`} onClick={event => {
+                        event.stopPropagation();
                         editorTrigger.current = event.currentTarget;
-                        setEditor(null);
-                        setDeleting(null);
-                        setNotice("");
-                        setHistory(contact);
-                      }}>Histórico</button><button className="button secondary" aria-label={`Editar ${contact.name}`} onClick={event => {
-                      editorTrigger.current = event.currentTarget;
-                      setNotice("");
-                      setDeleting(null);
-                      setHistory(null);
-                      setEditor({ contact });
-                    }}>Editar</button>
-                      <button className="button danger" aria-label={`Excluir ${contact.name}`} onClick={event => {
-                        editorTrigger.current = event.currentTarget;
-                        deletion.reset();
-                        setEditor(null);
-                        setNotice("");
-                        setHistory(null);
-                        setDeleting(contact);
-                      }}>Excluir</button></div></td>
+                        openDelete(contact);
+                      }}><Trash2 size={16} aria-hidden="true" /></button>
+                    </div></td>
                   </tr>
                 ))}
               </tbody>

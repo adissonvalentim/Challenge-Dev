@@ -3,8 +3,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
 import type { Contact, ContactInput } from "../api/types";
 
-export function ContactForm({ contact, onClose, onSaved }: {
+export function ContactForm({ contact, onClose, onSaved, disabled = false }: {
   contact: Contact | null;
+  disabled?: boolean;
   onClose: () => void;
   onSaved: (contact: Contact) => void;
 }) {
@@ -31,7 +32,7 @@ export function ContactForm({ contact, onClose, onSaved }: {
       event.preventDefault();
       mutation.mutate({ name: name.trim(), email: email.trim(), segment: segment.trim() || null });
     }}>
-      <fieldset disabled={mutation.isPending}>
+      <fieldset disabled={mutation.isPending || disabled}>
         <legend className="sr-only">Dados do contato</legend>
         <div className="form-fields">
           <label>Nome<input ref={nameInput} name="name" autoComplete="name" required value={name} onChange={event => setName(event.target.value)} /></label>

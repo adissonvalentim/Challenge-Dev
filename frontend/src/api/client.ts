@@ -1,4 +1,4 @@
-import type { AnalyticsSummary, Contact, ContactInput, ContactPage, ContactResponse } from './types';
+import type { AnalyticsSummary, Contact, ContactInput, ContactPage, ContactResponse, ContactSatisfaction } from './types';
 
 export class ApiError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -57,6 +57,9 @@ export const api = {
   },
   responses(id: number, signal?: AbortSignal) {
     return request<ContactResponse[]>(`/contacts/${id}/responses`, { signal });
+  },
+  satisfaction(id: number, signal?: AbortSignal) {
+    return request<ContactSatisfaction>(`/contacts/${id}/satisfaction`, { signal });
   },
   summary(signal?: AbortSignal) {
     return request<AnalyticsSummary>('/analytics/summary', { signal });

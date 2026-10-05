@@ -43,3 +43,11 @@ export interface AnalyticsSummary {
   responsesCount: number;
   csatAvg: number | null;
 }
+
+export interface ContactSatisfaction {
+  responsesCount: number;
+  promoters: number;
+  neutrals: number;
+  detractors: number;
+  latestNpsClass: 'Promotor' | 'Neutro' | 'Detrator' | null;
+}

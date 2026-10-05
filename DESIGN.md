@@ -102,13 +102,18 @@ destrutiva usa vermelho escuro sobre fundo coral claro; durante a exclusão,
 as ações ficam desabilitadas e o botão informa o andamento. Erros permanecem
 na confirmação e o sucesso aparece como aviso de status.
 
-O histórico abre na mesma posição, em superfície branca com borda e título
-focado ao abrir; fechar devolve o foco à ação de origem. A lista apresenta
-respostas mais recentes primeiro, separadas por linhas, com pesquisa, tipo e
-nota nas escalas explícitas NPS /10 e CSAT /5. Datas indicam UTC; canal e
-comentário completam cada resposta. Comentários preservam quebras de linha,
-têm largura de leitura limitada e quebram textos longos. Carregamento, erro
-com retry, histórico vazio e ausência de comentário têm mensagens próprias.
+Os detalhes do contato abrem em uma área própria com nome e e-mail no topo,
+formulário à esquerda e satisfação/histórico à direita; até 1050px ficam
+empilhados. A linha da tabela abre os detalhes; Ver contato oferece a mesma
+navegação por teclado. Excluir abre apenas a confirmação. Voltar foca o título
+da listagem. O formulário recebe foco inicial sem disputa com o histórico.
+
+O painel individual apresenta total de respostas, classificação NPS mais recente
+e contagens por classe recebidas da API. Cada resposta do histórico tem divisória,
+pesquisa/data UTC/canal agrupados, nota destacada com escala NPS /10 ou CSAT /5
+e comentário identificado. Comentários preservam quebras de linha e textos
+longos quebram sem ultrapassar o container. Carregamento, erro com retry,
+histórico vazio e ausência de comentário têm mensagens próprias.
 
 ## Do's and Don'ts
 
