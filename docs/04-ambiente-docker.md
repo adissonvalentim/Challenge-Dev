@@ -122,5 +122,23 @@ curl --fail http://localhost:8080/api/contacts/1/responses
 `GET /api/contacts/{id}/responses` retorna 200 com as respostas válidas, nome
 e tipo da pesquisa, nota, comentário, canal e data UTC. Ordenação: mais recente
 primeiro. Contato ativo sem respostas retorna `[]`; inexistente/excluído retorna
-404. O CRUD e o histórico de contatos estão implementados; analytics e frontend
-ainda estão pendentes.
+404. O CRUD, histórico e resumo estão implementados; o frontend ainda está pendente.
+
+## Resumo de satisfação
+
+```sh
+curl --fail http://localhost:8080/api/analytics/summary
+```
+
+Uma consulta SQL agrega as respostas de contatos ativos, excluindo respostas
+com `deleted_at` preenchido. O NPS usa somente pesquisas NPS; a média CSAT
+usa somente CSAT. `responsesCount` inclui os dois tipos. Com o seed intacto:
+NPS 24, 978 respostas NPS, promotores/neutros/detratores 477/256/245, percentuais
+48,8/26,2/25,1, total 1.246 e CSAT 3,91.
+
+Excluir um contato também retira suas respostas do resumo, pois contatos
+excluídos somem das leituras. Sem respostas NPS, score e classes retornam zero;
+sem respostas CSAT, `csatAvg` retorna null. O arredondamento é feito somente
+na apresentação: NPS inteiro, percentuais com uma casa e CSAT com duas. Empates
+exatos de arredondamento usam AwayFromZero, decisão adotada porque o contrato
+não especifica o tratamento de empates. Filtros opcionais não foram implementados.
