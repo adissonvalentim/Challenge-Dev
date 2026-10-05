@@ -5,6 +5,15 @@ namespace MiniCx.Api.Contacts;
 
 public sealed class ContactRepository(NpgsqlDataSource dataSource)
 {
+    public async Task<Contact?> GetByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
+        return await connection.QuerySingleOrDefaultAsync<Contact>(new CommandDefinition("""
+            SELECT id, name, email, segment FROM contacts
+            WHERE id = @Id AND deleted_at IS NULL;
+            """, new { Id = id }, cancellationToken: cancellationToken));
+    }
+
     public async Task<ContactPage> ListAsync(string? search, int page, int pageSize, CancellationToken cancellationToken)
     {
         // Busca literal: %, _ e a barra digitados pelo usuário não viram curingas.

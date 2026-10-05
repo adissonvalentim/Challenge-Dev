@@ -53,8 +53,17 @@ curl --fail 'http://localhost:8080/api/contacts?search=ana&page=1&pageSize=20'
 
 A busca considera nome ou e-mail sem diferenciar maiúsculas. `page` tem default 1,
 e `pageSize` tem default 20, limitado a 1–100. Parâmetros inválidos retornam HTTP 400
-com `{ "error": "mensagem legível" }`. Os demais endpoints do contrato ainda serão
-implementados.
+com `{ "error": "mensagem legível" }`.
+
+Para consultar um contato específico:
+
+```sh
+curl --fail http://localhost:8080/api/contacts/1
+```
+
+`GET /api/contacts/{id}` retorna HTTP 200 com `id`, `name`, `email` e `segment`,
+ou HTTP 404 quando o contato não existe ou foi excluído logicamente. Os demais
+endpoints do contrato ainda serão implementados.
 
 O Dockerfile usa o SDK .NET 8 para compilar e uma imagem do runtime ASP.NET 8
 para executar, com usuário sem privilégios de root. Dapper executa o SQL e
