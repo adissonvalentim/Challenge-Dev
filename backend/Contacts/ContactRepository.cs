@@ -5,6 +5,16 @@ namespace MiniCx.Api.Contacts;
 
 public sealed class ContactRepository(NpgsqlDataSource dataSource)
 {
+    public async Task<Contact?> UpdateAsync(int id, string name, string email, string? segment, CancellationToken cancellationToken)
+    {
+        await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
+        return await connection.QuerySingleOrDefaultAsync<Contact>(new CommandDefinition("""
+            UPDATE contacts SET name = @Name, email = @Email, segment = @Segment
+            WHERE id = @Id AND deleted_at IS NULL
+            RETURNING id, name, email, segment;
+            """, new { Id = id, Name = name, Email = email, Segment = segment }, cancellationToken: cancellationToken));
+    }
+
     public async Task<Contact> CreateAsync(string name, string email, string? segment, CancellationToken cancellationToken)
     {
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);

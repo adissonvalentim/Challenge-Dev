@@ -99,3 +99,10 @@ docker compose down
 ```
 
 O frontend ainda será adicionado ao Compose com sua implementação.
+
+## Edição de contatos
+
+`PUT /api/contacts/{id}` recebe os mesmos campos do POST e retorna 200 com o
+contato atualizado. Aplica as mesmas validações (400) e regra de duplicidade
+(409), permitindo manter o próprio e-mail. Contato inexistente ou excluído
+retorna 404.

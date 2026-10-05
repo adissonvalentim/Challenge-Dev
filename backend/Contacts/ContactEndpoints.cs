@@ -10,25 +10,25 @@ public static class ContactEndpoints
         app.MapPost("/api/contacts", async (
             HttpRequest request, ContactService service, CancellationToken cancellationToken) =>
         {
-            if (!request.HasJsonContentType())
-                return Results.BadRequest(new { error = "Envie um corpo JSON com Content-Type application/json." });
+            var (input, error) = await ReadInputAsync(request, cancellationToken);
+            if (error is not null) return Results.BadRequest(new { error });
 
-            ContactInput? input;
-            try
-            {
-                input = await request.ReadFromJsonAsync<ContactInput>(cancellationToken);
-            }
-            catch (Exception exception) when (exception is JsonException or BadHttpRequestException)
-            {
-                return Results.BadRequest(new { error = "O corpo da requisição deve ser um JSON válido." });
-            }
-            if (input is null)
-                return Results.BadRequest(new { error = "O corpo da requisição é obrigatório." });
-
-            var result = await service.CreateAsync(input, cancellationToken);
+            var result = await service.CreateAsync(input!, cancellationToken);
             if (result.Error is not null)
                 return Results.Json(new { error = result.Error }, statusCode: result.Conflict ? 409 : 400);
             return Results.Created($"/api/contacts/{result.Contact!.Id}", result.Contact);
+        });
+
+        app.MapPut("/api/contacts/{id:int}", async (
+            int id, HttpRequest request, ContactService service, CancellationToken cancellationToken) =>
+        {
+            var (input, error) = await ReadInputAsync(request, cancellationToken);
+            if (error is not null) return Results.BadRequest(new { error });
+            var result = await service.UpdateAsync(id, input!, cancellationToken);
+            if (result.NotFound) return Results.NotFound();
+            if (result.Error is not null)
+                return Results.Json(new { error = result.Error }, statusCode: result.Conflict ? 409 : 400);
+            return Results.Ok(result.Contact);
         });
 
         app.MapGet("/api/contacts/{id:int}", async (
@@ -52,6 +52,22 @@ public static class ContactEndpoints
             return Results.Ok(await repository.ListAsync(
                 search.Length == 0 ? null : search, page, pageSize, cancellationToken));
         });
+    }
+
+    private static async Task<(ContactInput? Input, string? Error)> ReadInputAsync(
+        HttpRequest request, CancellationToken cancellationToken)
+    {
+        if (!request.HasJsonContentType())
+            return (null, "Envie um corpo JSON com Content-Type application/json.");
+        try
+        {
+            var input = await request.ReadFromJsonAsync<ContactInput>(cancellationToken);
+            return input is null ? (null, "O corpo da requisição é obrigatório.") : (input, null);
+        }
+        catch (Exception exception) when (exception is JsonException or BadHttpRequestException)
+        {
+            return (null, "O corpo da requisição deve ser um JSON válido.");
+        }
     }
 
     private static bool TryReadInteger(HttpRequest request, string name, int fallback, out int value)
