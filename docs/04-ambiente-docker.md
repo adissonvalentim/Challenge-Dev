@@ -106,3 +106,9 @@ O frontend ainda será adicionado ao Compose com sua implementação.
 contato atualizado. Aplica as mesmas validações (400) e regra de duplicidade
 (409), permitindo manter o próprio e-mail. Contato inexistente ou excluído
 retorna 404.
+
+## Exclusão de contatos
+
+`DELETE /api/contacts/{id}` marca `deleted_at` e retorna 204 sem corpo.
+Contato inexistente ou já excluído retorna 404. A linha permanece no banco,
+não aparece nas leituras e seu e-mail fica disponível para novos cadastros.
