@@ -131,3 +131,14 @@ O trabalho está na branch `feat/mini-cx`, em commits por funcionalidade. Para a
 entrega, o repositório deve ser privado e os avaliadores devem ter acesso de
 leitura conforme o enunciado. O PR reúne a branch do projeto; cada commit não
 precisa de um merge separado.
+
+### Satisfação individual do aluno
+
+Complemento solicitado durante o desenvolvimento: os detalhes do contato reúnem
+edição, histórico e satisfação individual. `GET /api/contacts/{id}/satisfaction`
+retorna o total de respostas válidas, contagens das classes NPS e a classificação
+NPS mais recente. As contagens e a seleção da resposta recente são feitas em SQL;
+o total inclui CSAT, enquanto as classes consideram apenas NPS. Contatos ativos
+sem respostas retornam zero e classe `null`; excluídos/inexistentes retornam 404.
+Os endpoints obrigatórios mantêm o contrato do desafio. Segmento permanece texto
+opcional, conforme esse contrato.
