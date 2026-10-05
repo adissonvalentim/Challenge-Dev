@@ -45,7 +45,16 @@ curl --fail http://localhost:8080/health
 ```
 
 A rota operacional `/health` retorna `{"status":"ok"}` após a inicialização.
-As rotas de contatos e analytics ainda serão implementadas.
+A listagem de contatos já está disponível:
+
+```sh
+curl --fail 'http://localhost:8080/api/contacts?search=ana&page=1&pageSize=20'
+```
+
+A busca considera nome ou e-mail sem diferenciar maiúsculas. `page` tem default 1,
+e `pageSize` tem default 20, limitado a 1–100. Parâmetros inválidos retornam HTTP 400
+com `{ "error": "mensagem legível" }`. Os demais endpoints do contrato ainda serão
+implementados.
 
 O Dockerfile usa o SDK .NET 8 para compilar e uma imagem do runtime ASP.NET 8
 para executar, com usuário sem privilégios de root. Dapper executa o SQL e
