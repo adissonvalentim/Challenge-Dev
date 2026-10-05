@@ -154,7 +154,15 @@ Vite dentro de uma imagem Node e servido pelo Nginx. O Nginx encaminha `/api` ao
 backend; não é necessário configurar CORS porque o navegador usa a mesma origem.
 
 Nesta etapa: resumo, distribuição NPS, listagem de contatos, busca e paginação
-com estados de carregamento, erro e vazio. Formulários, exclusão e histórico na
-interface ainda serão adicionados. React Query gerencia cache e requisições;
+com estados de carregamento, erro e vazio, além de formulários para criar e editar
+contatos. Exclusão e histórico na interface ainda serão adicionados. React Query gerencia cache e requisições;
 a busca aplica debounce de 300 ms. A interface usa os valores do endpoint de
 resumo; a faixa representa a distribuição, sem recalcular o NPS.
+
+### Criar e editar pela interface
+
+Em Contatos, use “Novo contato” ou “Editar” na linha desejada. O formulário
+exige nome e e-mail; segmento é texto livre e opcional. Os campos são bloqueados
+durante o envio; erro da API mantém os valores preenchidos e aparece no formulário.
+Após salvar, a lista é atualizada sem recarregar a página e a busca passa para o
+e-mail salvo, tornando o resultado visível. Cancelar fecha o formulário.

@@ -31,6 +31,11 @@ spacing:
   medium: "16px"
   large: "24px"
 components:
+  button-primary:
+    backgroundColor: "{colors.action}"
+    textColor: "{colors.brand}"
+    rounded: "{rounded.control}"
+    padding: "10px 16px"
   button-secondary:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
@@ -50,8 +55,9 @@ components:
 
 Interface clara com cores vibrantes, conforme direção confirmada pelo usuário.
 O modo é operacional: navegação, dados e estados permanecem legíveis. Esta
-documentação descreve o resumo e a listagem implementados; formulários e histórico
-na interface ainda estão pendentes. Fonte de verdade: `frontend/src/styles.css`.
+documentação descreve o resumo, a listagem e os formulários de criação e edição
+implementados. Exclusão e histórico na interface ainda estão pendentes.
+Fonte de verdade: `frontend/src/styles.css`.
 
 ## Colors
 

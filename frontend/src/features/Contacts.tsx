@@ -1,10 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Plus } from "lucide-react";
 import { api } from "../api/client";
 import { Feedback } from "../components/Feedback";
+import { ContactForm } from "./ContactForm";
+import type { Contact } from "../api/types";
 
 export function Contacts() {
+  const [editor, setEditor] = useState<{ contact: Contact | null } | null>(null);
+  const [notice, setNotice] = useState("");
+  const editorTrigger = useRef<HTMLButtonElement | null>(null);
+  const closeEditor = () => { setEditor(null); editorTrigger.current?.focus(); };
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -28,7 +34,20 @@ export function Contacts() {
           <h1 id="contacts-title">Contatos</h1>
           <p>Encontre os alunos da Vita Bem-Estar.</p>
         </div>
+        <button className="button primary" onClick={event => {
+          editorTrigger.current = event.currentTarget;
+          setNotice("");
+          setEditor({ contact: null });
+        }}><Plus size={18} aria-hidden="true" />Novo contato</button>
       </div>
+      {notice && <p className="success-notice" role="status">{notice}</p>}
+      {editor && <ContactForm key={editor.contact?.id ?? "new"} contact={editor.contact} onClose={closeEditor} onSaved={saved => {
+        setNotice(editor.contact ? "Contato atualizado com sucesso." : "Contato criado com sucesso.");
+        setSearch(saved.email);
+        setAppliedSearch(saved.email);
+        setPage(1);
+        closeEditor();
+      }} />}
       <div className="contact-list">
         <div className="search-row">
           <label className="search-field">
@@ -72,6 +91,7 @@ export function Contacts() {
                   <th scope="col">Nome</th>
                   <th scope="col">E-mail</th>
                   <th scope="col">Segmento</th>
+                  <th scope="col">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -86,6 +106,11 @@ export function Contacts() {
                         "Sem segmento"
                       )}
                     </td>
+                    <td><button className="button secondary" aria-label={`Editar ${contact.name}`} onClick={event => {
+                      editorTrigger.current = event.currentTarget;
+                      setNotice("");
+                      setEditor({ contact });
+                    }}>Editar</button></td>
                   </tr>
                 ))}
               </tbody>
