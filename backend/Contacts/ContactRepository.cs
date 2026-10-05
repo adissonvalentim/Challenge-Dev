@@ -5,6 +5,35 @@ namespace MiniCx.Api.Contacts;
 
 public sealed class ContactRepository(NpgsqlDataSource dataSource)
 {
+    public async Task<ContactSatisfaction?> GetSatisfactionAsync(int id, CancellationToken cancellationToken)
+    {
+        await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
+        var result = await connection.QuerySingleAsync<ContactSatisfactionAggregate>(new CommandDefinition("""
+            WITH valid AS (
+                SELECT r.id, r.score, r.responded_at, s.type
+                FROM responses r
+                JOIN surveys s ON s.id = r.survey_id
+                JOIN contacts c ON c.id = r.contact_id
+                WHERE r.contact_id = @Id AND r.deleted_at IS NULL AND c.deleted_at IS NULL
+            )
+            SELECT EXISTS (SELECT 1 FROM contacts WHERE id = @Id AND deleted_at IS NULL) AS "Exists",
+                   COUNT(*) AS "ResponsesCount",
+                   COUNT(CASE WHEN type = 'NPS' AND score BETWEEN 9 AND 10 THEN 1 END) AS "Promoters",
+                   COUNT(CASE WHEN type = 'NPS' AND score BETWEEN 7 AND 8 THEN 1 END) AS "Neutrals",
+                   COUNT(CASE WHEN type = 'NPS' AND score BETWEEN 0 AND 6 THEN 1 END) AS "Detractors",
+                   (SELECT CASE WHEN score >= 9 THEN 'Promotor'
+                                WHEN score >= 7 THEN 'Neutro'
+                                ELSE 'Detrator' END
+                    FROM valid WHERE type = 'NPS'
+                    ORDER BY responded_at DESC, id DESC LIMIT 1) AS "LatestNpsClass"
+            FROM valid;
+            """, new { Id = id }, cancellationToken: cancellationToken));
+        return result.Exists
+            ? new ContactSatisfaction(result.ResponsesCount, result.Promoters, result.Neutrals,
+                result.Detractors, result.LatestNpsClass)
+            : null;
+    }
+
     public async Task<IReadOnlyList<ContactResponse>?> GetResponsesAsync(int id, CancellationToken cancellationToken)
     {
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);

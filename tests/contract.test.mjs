@@ -80,11 +80,20 @@ test('Contrato obrigatório com PostgreSQL e seed reais', async t => {
           return { id: r.id, surveyId: r.surveyId, surveyName: survey.name, surveyType: survey.type,
             score: r.score, comment: r.comment, channel: r.channel, respondedAt: new Date(r.respondedAt).toISOString() };
         });
+      const nps = expected.filter(r => r.surveyType === 'NPS');
+      assert.deepEqual((await request(`/api/contacts/${contact.id}/satisfaction`)).body, {
+        responsesCount: expected.length,
+        promoters: nps.filter(r => r.score >= 9).length,
+        neutrals: nps.filter(r => r.score >= 7 && r.score <= 8).length,
+        detractors: nps.filter(r => r.score <= 6).length,
+        latestNpsClass: !nps.length ? null : nps[0].score >= 9 ? 'Promotor' : nps[0].score >= 7 ? 'Neutro' : 'Detrator',
+      });
       assert.equal(actual.every(r => r.respondedAt.endsWith('Z')), true);
       assert.deepEqual(actual.map(r => ({ ...r, respondedAt: new Date(r.respondedAt).toISOString() })), expected);
     }
     await request('/api/contacts/2147483647', 404);
     await request('/api/contacts/2147483647/responses', 404);
+    await request('/api/contacts/2147483647/satisfaction', 404);
   });
 
   await t.test('validação, CRUD, duplicidade e e-mail liberado após soft delete', async () => {
@@ -100,6 +109,9 @@ test('Contrato obrigatório com PostgreSQL e seed reais', async t => {
     assert.equal(created.response.headers.get('location'), `/api/contacts/${id}`);
     assert.deepEqual(created.body, { id, ...input });
     assert.deepEqual((await request(`/api/contacts/${id}/responses`)).body, []);
+    assert.deepEqual((await request(`/api/contacts/${id}/satisfaction`)).body, {
+      responsesCount: 0, promoters: 0, neutrals: 0, detractors: 0, latestNpsClass: null,
+    });
     assert.equal(typeof (await request('/api/contacts', 409, write('POST', { ...input, email: input.email.toUpperCase() }))).body.error, 'string');
     const edited = { ...input, name: 'Aluno editado', segment: 'Texto livre' };
     assert.deepEqual((await request(`/api/contacts/${id}`, 200, write('PUT', edited))).body, { id, ...edited });
@@ -109,6 +121,7 @@ test('Contrato obrigatório com PostgreSQL e seed reais', async t => {
     await request(`/api/contacts/${id}`, 204, { method: 'DELETE' });
     await request(`/api/contacts/${id}`, 404);
     await request(`/api/contacts/${id}/responses`, 404);
+    await request(`/api/contacts/${id}/satisfaction`, 404);
     await request(`/api/contacts/${id}`, 404, { method: 'DELETE' });
     await request(`/api/contacts/${id}`, 404, write('PUT', edited));
     assert.equal((await request(`/api/contacts?search=${input.email}`)).body.total, 0);

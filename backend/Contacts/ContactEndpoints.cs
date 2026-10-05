@@ -7,6 +7,13 @@ public static class ContactEndpoints
 {
     public static void MapContactEndpoints(this WebApplication app)
     {
+        app.MapGet("/api/contacts/{id:int}/satisfaction", async (
+            int id, ContactRepository repository, CancellationToken cancellationToken) =>
+        {
+            var satisfaction = await repository.GetSatisfactionAsync(id, cancellationToken);
+            return satisfaction is null ? Results.NotFound() : Results.Ok(satisfaction);
+        });
+
         app.MapGet("/api/contacts/{id:int}/responses", async (
             int id, ContactRepository repository, CancellationToken cancellationToken) =>
         {
