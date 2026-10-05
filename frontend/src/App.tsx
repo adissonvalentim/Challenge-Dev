@@ -1,7 +1,10 @@
-import { Activity, ChartNoAxesCombined } from "lucide-react";
+import { useState } from "react";
+import { Activity, ChartNoAxesCombined, Users } from "lucide-react";
 import { Summary } from "./features/Summary";
+import { Contacts } from "./features/Contacts";
 
 export function App() {
+  const [view, setView] = useState<"summary" | "contacts">("summary");
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
@@ -15,9 +18,20 @@ export function App() {
           </span>
         </div>
         <nav aria-label="Navegação principal">
-          <a href="#main-content" aria-current="page">
-            <ChartNoAxesCombined size={20} aria-hidden="true" /> Resumo
-          </a>
+          <button
+            aria-current={view === "summary" ? "page" : undefined}
+            onClick={() => setView("summary")}
+          >
+            <ChartNoAxesCombined size={20} aria-hidden="true" />
+            Resumo
+          </button>
+          <button
+            aria-current={view === "contacts" ? "page" : undefined}
+            onClick={() => setView("contacts")}
+          >
+            <Users size={20} aria-hidden="true" />
+            Contatos
+          </button>
         </nav>
         <p className="sidebar-description">Satisfação começa com escuta.</p>
       </aside>
@@ -27,7 +41,12 @@ export function App() {
           <span>Customer Experience</span>
         </header>
         <main id="main-content" tabIndex={-1}>
-          <Summary />
+          <div hidden={view !== "summary"}>
+            <Summary />
+          </div>
+          <div hidden={view !== "contacts"}>
+            <Contacts />
+          </div>
         </main>
         <footer>Mini CX · Vita Bem-Estar</footer>
       </div>

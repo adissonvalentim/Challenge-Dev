@@ -113,7 +113,7 @@ nav {
   display: grid;
   gap: 8px;
 }
-nav button, nav a {
+nav button {
   border: 0;
   color: #e5f0e8;
   display: flex;
@@ -125,10 +125,10 @@ nav button, nav a {
   border-radius: 10px;
   font-weight: 600;
 }
-nav button:hover, nav a:hover {
+nav button:hover {
   background: #20503f;
 }
-nav button[aria-current], nav a[aria-current] {
+nav button[aria-current] {
   background: var(--action);
   color: var(--brand);
 }
@@ -323,6 +323,98 @@ main {
 .feedback button {
   margin-top: 14px;
 }
+.contact-list {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.search-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px;
+}
+.search-row > span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 420px);
+  border: 1px solid #bdcec2;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: var(--muted);
+}
+.search-field input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  padding: 12px 0;
+  background: transparent;
+  color: var(--ink);
+}
+input::placeholder {
+  color: #5c6f63;
+}
+.table-scroll {
+  overflow-x: auto;
+  scrollbar-color: #a3bfa9 #f3f7f4;
+}
+table {
+  min-width: 650px;
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+th {
+  padding: 14px 22px;
+  background: #f5f8f5;
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 600;
+  border-block: 1px solid var(--line);
+}
+td {
+  padding: 18px 22px;
+  border-bottom: 1px solid #edf1ed;
+  overflow-wrap: anywhere;
+}
+tbody tr:hover {
+  background: #f8fbf6;
+}
+.contact-name {
+  font-weight: 600;
+}
+.segment {
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: #eaf3ec;
+  color: #315c41;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.pagination > div {
+  display: flex;
+  gap: 8px;
+}
+.contact-list > .feedback {
+  margin: 0 22px 22px;
+}
 footer {
   padding: 24px 40px;
   color: var(--muted);
@@ -494,5 +586,3 @@ footer {
     animation: none !important;
   }
 }
-
-nav a { text-decoration: none; }
